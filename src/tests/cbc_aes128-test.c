@@ -8,53 +8,53 @@
 
 #include "cbc_aes128-testdata.c"
 
-void 
+void
 dump(unsigned char *buf, size_t len) {
-  size_t i = 0;
-  while (i < len) {
-    printf("%02x ", buf[i++]);
-    if (i % 4 == 0)
-      printf(" ");
-    if (i % 16 == 0)
-      printf("\n\t");
-  }
-  printf("\n");
+	size_t i = 0;
+	while (i < len) {
+		printf("%02x ", buf[i++]);
+		if (i % 4 == 0)
+			printf(" ");
+		if (i % 16 == 0)
+			printf("\n\t");
+	}
+	printf("\n");
 }
 
 int main(int argc, char **argv) {
-  int len, n;
+	int len, n;
 
-  for (n = 0; n < sizeof(data)/sizeof(struct test_vector); ++n) {
-    dtls_cipher_context_t *cipher;
+	for (n = 0; n < sizeof(data)/sizeof(struct test_vector); ++n) {
+		dtls_cipher_context_t *cipher;
 
-    cipher = dtls_new_cipher(&ciphers[AES128],
-			     data[n].key,
-			     sizeof(data[n].key));
-    
-    if (!cipher) {
-      fprintf(stderr, "cannot set key\n");
-      exit(-1);
-    }
+		cipher = dtls_new_cipher(&ciphers[AES128],
+		                         data[n].key,
+		                         sizeof(data[n].key));
 
-    dtls_init_cipher(cipher, data[n].nonce, sizeof(data[n].nonce));
+		if (!cipher) {
+			fprintf(stderr, "cannot set key\n");
+			exit(-1);
+		}
 
-    if (data[n].M == 0)
-      len = dtls_encrypt(cipher, data[n].msg, data[n].lm);
-    else
-      len = dtls_decrypt(cipher, data[n].msg, data[n].lm);
+		dtls_init_cipher(cipher, data[n].nonce, sizeof(data[n].nonce));
 
-    printf("Packet Vector #%d ", n+1);
-    if (len != data[n].r_lm
-	|| memcmp(data[n].msg, data[n].result, len))
-      printf("FAILED, ");
-    else 
-      printf("OK, ");
-    
-    printf("result is (total length = %d):\n\t", (int)len);
-    dump(data[n].msg, len);
+		if (data[n].M == 0)
+			len = dtls_encrypt(cipher, data[n].msg, data[n].lm);
+		else
+			len = dtls_decrypt(cipher, data[n].msg, data[n].lm);
 
-    free(cipher);
-  }
+		printf("Packet Vector #%d ", n+1);
+		if (len != data[n].r_lm
+		    || memcmp(data[n].msg, data[n].result, len))
+			printf("FAILED, ");
+		else
+			printf("OK, ");
 
-  return 0;
+		printf("result is (total length = %d):\n\t", (int)len);
+		dump(data[n].msg, len);
+
+		free(cipher);
+	}
+
+	return 0;
 }

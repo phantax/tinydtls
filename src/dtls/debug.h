@@ -24,33 +24,8 @@
 #include "global.h"
 #include "session.h"
 
-#ifdef WITH_CONTIKI
-# ifndef DEBUG
-#  define DEBUG 0 //DEBUG_PRINT
-# endif /* DEBUG */
-#include "net/ip/uip-debug.h"
-
-#ifdef CONTIKI_TARGET_MBXXX
-extern char __Stack_Init, _estack;
-
-static inline void check_stack() {
-  const char *p = &__Stack_Init;
-  while (p < &_estack && *p == 0x38) {
-    p++;
-  }
-
-  PRINTF("Stack: %d bytes used (%d free)\n", &_estack - p, p - &__Stack_Init);
-}
-#else /* CONTIKI_TARGET_MBXXX */
 static inline void check_stack() {
 }
-#endif /* CONTIKI_TARGET_MBXXX */
-#else /* WITH_CONTKI */
-#define PRINTF(...)
-
-static inline void check_stack() {
-}
-#endif
 
 /** Pre-defined log levels akin to what is used in \b syslog. */
 typedef enum { DTLS_LOG_EMERG=0, DTLS_LOG_ALERT, DTLS_LOG_CRIT, DTLS_LOG_WARN, 
@@ -73,6 +48,8 @@ void dtls_set_log_level(log_t level);
  * Writes the given text to \c stdout. The text is output only when \p
  * level is below or equal to the log level that set by
  * set_log_level(). */
+
+
 #ifdef HAVE_VPRINTF
 void dsrv_log(log_t level, char *format, ...);
 #else

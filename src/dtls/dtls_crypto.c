@@ -43,17 +43,17 @@ static struct dtls_cipher_context_t cipher_context;
 
 static struct dtls_cipher_context_t *dtls_cipher_context_get(void)
 {
-    /*
-     *  awalz: Removed pthread mutex lock here
-     */
+	/*
+	 *  awalz: Removed pthread mutex lock here
+	 */
 	return &cipher_context;
 }
 
 static void dtls_cipher_context_release(void)
 {
-    /*
-     *  awalz: Removed pthread mutex lock here
-     */
+	/*
+	 *  awalz: Removed pthread mutex lock here
+	 */
 }
 
 #ifndef WITH_CONTIKI

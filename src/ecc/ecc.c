@@ -43,26 +43,26 @@
 static uint32_t add( const uint32_t *x, const uint32_t *y, uint32_t *result, uint8_t length){
 	uint64_t d = 0; //carry
 	int v = 0;
-	for(v = 0;v<length;v++){
+	for(v = 0; v<length; v++) {
 		//printf("%02x + %02x + %01x = ", x[v], y[v], d);
 		d += (uint64_t) x[v] + (uint64_t) y[v];
 		//printf("%02x\n", d);
 		result[v] = d;
 		d = d>>32; //save carry
 	}
-	
+
 	return (uint32_t)d;
 }
 
 static uint32_t sub( const uint32_t *x, const uint32_t *y, uint32_t *result, uint8_t length){
 	uint64_t d = 0;
 	int v;
-	for(v = 0;v < length; v++){
+	for(v = 0; v < length; v++) {
 		d = (uint64_t) x[v] - (uint64_t) y[v] - d;
 		result[v] = d & 0xFFFFFFFF;
 		d = d>>32;
 		d &= 0x1;
-	}	
+	}
 	return (uint32_t)d;
 }
 
@@ -78,31 +78,31 @@ static void rshiftby(const uint32_t *in, uint8_t in_size, uint32_t *out, uint8_t
 //finite field functions
 //FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF
 static const uint32_t ecc_prime_m[8] = {0xffffffff, 0xffffffff, 0xffffffff, 0x00000000,
-					0x00000000, 0x00000000, 0x00000001, 0xffffffff};
+	                                0x00000000, 0x00000000, 0x00000001, 0xffffffff};
 
-							
+
 /* This is added after an static byte addition if the answer has a carry in MSB*/
 static const uint32_t ecc_prime_r[8] = {0x00000001, 0x00000000, 0x00000000, 0xffffffff,
-					0xffffffff, 0xffffffff, 0xfffffffe, 0x00000000};
+	                                0xffffffff, 0xffffffff, 0xfffffffe, 0x00000000};
 
 // ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
 static const uint32_t ecc_order_m[9] = {0xFC632551, 0xF3B9CAC2, 0xA7179E84, 0xBCE6FAAD,
-					0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF,
-					0x00000000};
+	                                0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF,
+	                                0x00000000};
 
 static const uint32_t ecc_order_r[8] = {0x039CDAAF, 0x0C46353D, 0x58E8617B, 0x43190552,
-					0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000};
+	                                0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000};
 
 static const uint32_t ecc_order_mu[9] = {0xEEDF9BFE, 0x012FFD85, 0xDF1A6C21, 0x43190552,
-					 0xFFFFFFFF, 0xFFFFFFFE, 0xFFFFFFFF, 0x00000000,
-					 0x00000001};
+	                                 0xFFFFFFFF, 0xFFFFFFFE, 0xFFFFFFFF, 0x00000000,
+	                                 0x00000001};
 
 static const uint8_t ecc_order_k = 8;
 
 const uint32_t ecc_g_point_x[8] = { 0xD898C296, 0xF4A13945, 0x2DEB33A0, 0x77037D81,
-				    0x63A440F2, 0xF8BCE6E5, 0xE12C4247, 0x6B17D1F2};
+	                            0x63A440F2, 0xF8BCE6E5, 0xE12C4247, 0x6B17D1F2};
 const uint32_t ecc_g_point_y[8] = { 0x37BF51F5, 0xCBB64068, 0x6B315ECE, 0x2BCE3357,
-				    0x7C0F9E16, 0x8EE7EB4A, 0xFE1A7F9B, 0x4FE342E2};
+	                            0x7C0F9E16, 0x8EE7EB4A, 0xFE1A7F9B, 0x4FE342E2};
 
 
 static void setZero(uint32_t *A, const int length){
@@ -135,7 +135,7 @@ static int isGreater(const uint32_t *A, const uint32_t *B, uint8_t length){
 
 
 static int fieldAdd(const uint32_t *x, const uint32_t *y, const uint32_t *reducer, uint32_t *result){
-	if(add(x, y, result, arrayLength)){ //add prime if carry is still set!
+	if(add(x, y, result, arrayLength)) { //add prime if carry is still set!
 		uint32_t tempas[8];
 		setZero(tempas, 8);
 		add(result, reducer, tempas, arrayLength);
@@ -145,7 +145,7 @@ static int fieldAdd(const uint32_t *x, const uint32_t *y, const uint32_t *reduce
 }
 
 static int fieldSub(const uint32_t *x, const uint32_t *y, const uint32_t *modulus, uint32_t *result){
-	if(sub(x, y, result, arrayLength)){ //add modulus if carry is set
+	if(sub(x, y, result, arrayLength)) { //add modulus if carry is set
 		uint32_t tempas[8];
 		setZero(tempas, 8);
 		add(result, modulus, tempas, arrayLength);
@@ -162,8 +162,8 @@ static int fieldMult(const uint32_t *x, const uint32_t *y, uint32_t *result, uin
 	setZero(result, length * 2);
 	uint8_t k, n;
 	uint64_t l;
-	for (k = 0; k < length; k++){
-		for (n = 0; n < length; n++){ 
+	for (k = 0; k < length; k++) {
+		for (n = 0; n < length; n++) {
 			l = (uint64_t)x[n]*(uint64_t)y[k];
 			temp[n+k] = l&0xFFFFFFFF;
 			temp[n+k+1] = l>>32;
@@ -184,68 +184,68 @@ static void fieldModP(uint32_t *A, const uint32_t *B)
 	uint8_t n;
 	setZero(tempm, 8);
 	setZero(tempm2, 8);
-	/* A = T */ 
+	/* A = T */
 	copy(B,A,arrayLength);
 
-	/* Form S1 */ 
-	for(n=0;n<3;n++) tempm[n]=0; 
-	for(n=3;n<8;n++) tempm[n]=B[n+8];
+	/* Form S1 */
+	for(n=0; n<3; n++) tempm[n]=0;
+	for(n=3; n<8; n++) tempm[n]=B[n+8];
 
-	/* tempm2=T+S1 */ 
+	/* tempm2=T+S1 */
 	fieldAdd(A,tempm,ecc_prime_r,tempm2);
-	/* A=T+S1+S1 */ 
+	/* A=T+S1+S1 */
 	fieldAdd(tempm2,tempm,ecc_prime_r,A);
-	/* Form S2 */ 
-	for(n=0;n<3;n++) tempm[n]=0; 
-	for(n=3;n<7;n++) tempm[n]=B[n+9]; 
-	for(n=7;n<8;n++) tempm[n]=0;
-	/* tempm2=T+S1+S1+S2 */ 
+	/* Form S2 */
+	for(n=0; n<3; n++) tempm[n]=0;
+	for(n=3; n<7; n++) tempm[n]=B[n+9];
+	for(n=7; n<8; n++) tempm[n]=0;
+	/* tempm2=T+S1+S1+S2 */
 	fieldAdd(A,tempm,ecc_prime_r,tempm2);
-	/* A=T+S1+S1+S2+S2 */ 
+	/* A=T+S1+S1+S2+S2 */
 	fieldAdd(tempm2,tempm,ecc_prime_r,A);
-	/* Form S3 */ 
-	for(n=0;n<3;n++) tempm[n]=B[n+8]; 
-	for(n=3;n<6;n++) tempm[n]=0; 
-	for(n=6;n<8;n++) tempm[n]=B[n+8];
-	/* tempm2=T+S1+S1+S2+S2+S3 */ 
+	/* Form S3 */
+	for(n=0; n<3; n++) tempm[n]=B[n+8];
+	for(n=3; n<6; n++) tempm[n]=0;
+	for(n=6; n<8; n++) tempm[n]=B[n+8];
+	/* tempm2=T+S1+S1+S2+S2+S3 */
 	fieldAdd(A,tempm,ecc_prime_r,tempm2);
-	/* Form S4 */ 
-	for(n=0;n<3;n++) tempm[n]=B[n+9]; 
-	for(n=3;n<6;n++) tempm[n]=B[n+10]; 
-	for(n=6;n<7;n++) tempm[n]=B[n+7]; 
-	for(n=7;n<8;n++) tempm[n]=B[n+1];
-	/* A=T+S1+S1+S2+S2+S3+S4 */ 
+	/* Form S4 */
+	for(n=0; n<3; n++) tempm[n]=B[n+9];
+	for(n=3; n<6; n++) tempm[n]=B[n+10];
+	for(n=6; n<7; n++) tempm[n]=B[n+7];
+	for(n=7; n<8; n++) tempm[n]=B[n+1];
+	/* A=T+S1+S1+S2+S2+S3+S4 */
 	fieldAdd(tempm2,tempm,ecc_prime_r,A);
-	/* Form D1 */ 
-	for(n=0;n<3;n++) tempm[n]=B[n+11]; 
-	for(n=3;n<6;n++) tempm[n]=0; 
-	for(n=6;n<7;n++) tempm[n]=B[n+2]; 
-	for(n=7;n<8;n++) tempm[n]=B[n+3];
-	/* tempm2=T+S1+S1+S2+S2+S3+S4-D1 */ 
+	/* Form D1 */
+	for(n=0; n<3; n++) tempm[n]=B[n+11];
+	for(n=3; n<6; n++) tempm[n]=0;
+	for(n=6; n<7; n++) tempm[n]=B[n+2];
+	for(n=7; n<8; n++) tempm[n]=B[n+3];
+	/* tempm2=T+S1+S1+S2+S2+S3+S4-D1 */
 	fieldSub(A,tempm,ecc_prime_m,tempm2);
-	/* Form D2 */ 
-	for(n=0;n<4;n++) tempm[n]=B[n+12]; 
-	for(n=4;n<6;n++) tempm[n]=0; 
-	for(n=6;n<7;n++) tempm[n]=B[n+3]; 
-	for(n=7;n<8;n++) tempm[n]=B[n+4];
-	/* A=T+S1+S1+S2+S2+S3+S4-D1-D2 */ 
+	/* Form D2 */
+	for(n=0; n<4; n++) tempm[n]=B[n+12];
+	for(n=4; n<6; n++) tempm[n]=0;
+	for(n=6; n<7; n++) tempm[n]=B[n+3];
+	for(n=7; n<8; n++) tempm[n]=B[n+4];
+	/* A=T+S1+S1+S2+S2+S3+S4-D1-D2 */
 	fieldSub(tempm2,tempm,ecc_prime_m,A);
-	/* Form D3 */ 
-	for(n=0;n<3;n++) tempm[n]=B[n+13]; 
-	for(n=3;n<6;n++) tempm[n]=B[n+5]; 
-	for(n=6;n<7;n++) tempm[n]=0; 
-	for(n=7;n<8;n++) tempm[n]=B[n+5];
-	/* tempm2=T+S1+S1+S2+S2+S3+S4-D1-D2-D3 */ 
+	/* Form D3 */
+	for(n=0; n<3; n++) tempm[n]=B[n+13];
+	for(n=3; n<6; n++) tempm[n]=B[n+5];
+	for(n=6; n<7; n++) tempm[n]=0;
+	for(n=7; n<8; n++) tempm[n]=B[n+5];
+	/* tempm2=T+S1+S1+S2+S2+S3+S4-D1-D2-D3 */
 	fieldSub(A,tempm,ecc_prime_m,tempm2);
-	/* Form D4 */ 
-	for(n=0;n<2;n++) tempm[n]=B[n+14]; 
-	for(n=2;n<3;n++) tempm[n]=0; 
-	for(n=3;n<6;n++) tempm[n]=B[n+6]; 
-	for(n=6;n<7;n++) tempm[n]=0; 
-	for(n=7;n<8;n++) tempm[n]=B[n+6];
-	/* A=T+S1+S1+S2+S2+S3+S4-D1-D2-D3-D4 */ 
+	/* Form D4 */
+	for(n=0; n<2; n++) tempm[n]=B[n+14];
+	for(n=2; n<3; n++) tempm[n]=0;
+	for(n=3; n<6; n++) tempm[n]=B[n+6];
+	for(n=6; n<7; n++) tempm[n]=0;
+	for(n=7; n<8; n++) tempm[n]=B[n+6];
+	/* A=T+S1+S1+S2+S2+S3+S4-D1-D2-D3-D4 */
 	fieldSub(tempm2,tempm,ecc_prime_m,A);
-	if(isGreater(A, ecc_prime_m, arrayLength) >= 0){
+	if(isGreater(A, ecc_prime_m, arrayLength) >= 0) {
 		fieldSub(A, ecc_prime_m, ecc_prime_m, tempm);
 		copy(tempm, A, arrayLength);
 	}
@@ -260,9 +260,9 @@ static void fieldModP(uint32_t *A, const uint32_t *B)
  * result: result of modulo calculation (max 36 bytes)
  * size: size of A
  *
- * This uses the Barrett modular reduction as described in the Handbook 
- * of Applied Cryptography 14.42 Algorithm Barrett modular reduction, 
- * see http://cacr.uwaterloo.ca/hac/about/chap14.pdf and 
+ * This uses the Barrett modular reduction as described in the Handbook
+ * of Applied Cryptography 14.42 Algorithm Barrett modular reduction,
+ * see http://cacr.uwaterloo.ca/hac/about/chap14.pdf and
  * http://everything2.com/title/Barrett+Reduction
  *
  * b = 32 (bite size of the processor architecture)
@@ -277,7 +277,7 @@ static void fieldModO(const uint32_t *A, uint32_t *result, uint8_t length) {
 	// return if the given value is smaller than the modulus
 	if (length == arrayLength && isGreater(A, ecc_order_m, arrayLength) <= 0) {
 		if (A != result)
-		        copy(A, result, length);
+			copy(A, result, length);
 		return;
 	}
 
@@ -300,20 +300,20 @@ static void fieldModO(const uint32_t *A, uint32_t *result, uint8_t length) {
 }
 
 static int isOne(const uint32_t* A){
-	uint8_t n; 
-	for(n=1;n<8;n++) 
-		if (A[n]!=0) 
+	uint8_t n;
+	for(n=1; n<8; n++)
+		if (A[n]!=0)
 			break;
 
-	if ((n==8)&&(A[0]==1)) 
+	if ((n==8)&&(A[0]==1))
 		return 1;
-	else 
+	else
 		return 0;
 }
 
 static int isZero(const uint32_t* A){
 	uint8_t n, r=0;
-	for(n=0;n<8;n++){
+	for(n=0; n<8; n++) {
 		if (A[n] == 0) r++;
 	}
 	return r==8;
@@ -322,7 +322,7 @@ static int isZero(const uint32_t* A){
 static void rshift(uint32_t* A){
 	int n, i;
 	uint32_t nOld = 0;
-	for (i = 8; i--;)
+	for (i = 8; i--; )
 	{
 		n = A[i]&0x1;
 		A[i] = A[i]>>1 | nOld<<31;
@@ -333,7 +333,7 @@ static void rshift(uint32_t* A){
 static int fieldAddAndDivide(const uint32_t *x, const uint32_t *modulus, const uint32_t *reducer, uint32_t* result){
 	uint32_t n = add(x, modulus, result, arrayLength);
 	rshift(result);
-	if(n){ //add prime if carry is still set!
+	if(n) { //add prime if carry is still set!
 		result[7] |= 0x80000000;//add the carry
 		if (isGreater(result, modulus, arrayLength) == 1)
 		{
@@ -342,7 +342,7 @@ static int fieldAddAndDivide(const uint32_t *x, const uint32_t *modulus, const u
 			add(result, reducer, tempas, 8);
 			copy(tempas, result, arrayLength);
 		}
-		
+
 	}
 	return 0;
 }
@@ -360,49 +360,49 @@ static void fieldInv(const uint32_t *A, const uint32_t *modulus, const uint32_t 
 	setZero(v, 8);
 
 	uint8_t t;
-	copy(A,u,arrayLength); 
-	copy(modulus,v,arrayLength); 
+	copy(A,u,arrayLength);
+	copy(modulus,v,arrayLength);
 	setZero(x1, 8);
 	setZero(x2, 8);
-	x1[0]=1; 
-	/* While u !=1 and v !=1 */ 
+	x1[0]=1;
+	/* While u !=1 and v !=1 */
 	while ((isOne(u) || isOne(v))==0) {
-		while(!(u[0]&1)) { 					/* While u is even */
-			rshift(u); 						/* divide by 2 */
-			if (!(x1[0]&1))					/*ifx1iseven*/
-				rshift(x1);					/* Divide by 2 */
+		while(!(u[0]&1)) {                                      /* While u is even */
+			rshift(u);                                              /* divide by 2 */
+			if (!(x1[0]&1))                                 /*ifx1iseven*/
+				rshift(x1);                                     /* Divide by 2 */
 			else {
 				fieldAddAndDivide(x1,modulus,reducer,tempm); /* tempm=x1+p */
-				copy(tempm,x1,arrayLength); 		/* x1=tempm */
+				copy(tempm,x1,arrayLength);             /* x1=tempm */
 				//rshift(x1);					/* Divide by 2 */
 			}
-		} 
-		while(!(v[0]&1)) {					/* While v is even */
-			rshift(v); 						/* divide by 2 */ 
-			if (!(x2[0]&1))					/*ifx1iseven*/
-				rshift(x2); 				/* Divide by 2 */
+		}
+		while(!(v[0]&1)) {                                      /* While v is even */
+			rshift(v);                                              /* divide by 2 */
+			if (!(x2[0]&1))                                 /*ifx1iseven*/
+				rshift(x2);                             /* Divide by 2 */
 			else
 			{
-				fieldAddAndDivide(x2,modulus,reducer,tempm);	/* tempm=x1+p */
-				copy(tempm,x2,arrayLength); 			/* x1=tempm */ 
+				fieldAddAndDivide(x2,modulus,reducer,tempm);    /* tempm=x1+p */
+				copy(tempm,x2,arrayLength);                     /* x1=tempm */
 				//rshift(x2);					/* Divide by 2 */
 			}
-			
-		} 
-		t=sub(u,v,tempm,arrayLength); 				/* tempm=u-v */
-		if (t==0) {							/* If u > 0 */
-			copy(tempm,u,arrayLength); 					/* u=u-v */
-			fieldSub(x1,x2,modulus,tempm); 			/* tempm=x1-x2 */
-			copy(tempm,x1,arrayLength);					/* x1=x1-x2 */
-		} else {
-			sub(v,u,tempm,arrayLength); 			/* tempm=v-u */
-			copy(tempm,v,arrayLength); 					/* v=v-u */
-			fieldSub(x2,x1,modulus,tempm); 			/* tempm=x2-x1 */
-			copy(tempm,x2,arrayLength);					/* x2=x2-x1 */
+
 		}
-	} 
+		t=sub(u,v,tempm,arrayLength);                           /* tempm=u-v */
+		if (t==0) {                                                     /* If u > 0 */
+			copy(tempm,u,arrayLength);                                      /* u=u-v */
+			fieldSub(x1,x2,modulus,tempm);                  /* tempm=x1-x2 */
+			copy(tempm,x1,arrayLength);                                     /* x1=x1-x2 */
+		} else {
+			sub(v,u,tempm,arrayLength);                     /* tempm=v-u */
+			copy(tempm,v,arrayLength);                                      /* v=v-u */
+			fieldSub(x2,x1,modulus,tempm);                  /* tempm=x2-x1 */
+			copy(tempm,x2,arrayLength);                                     /* x2=x2-x1 */
+		}
+	}
 	if (isOne(u)) {
-		copy(x1,B,arrayLength); 
+		copy(x1,B,arrayLength);
 	} else {
 		copy(x2,B,arrayLength);
 	}
@@ -414,7 +414,7 @@ void static ec_double(const uint32_t *px, const uint32_t *py, uint32_t *Dx, uint
 	uint32_t tempC[8];
 	uint32_t tempD[16];
 
-	if(isZero(px) && isZero(py)){
+	if(isZero(px) && isZero(py)) {
 		copy(px, Dx,arrayLength);
 		copy(py, Dy,arrayLength);
 		return;
@@ -450,7 +450,7 @@ void static ec_add(const uint32_t *px, const uint32_t *py, const uint32_t *qx, c
 	uint32_t tempC[8];
 	uint32_t tempD[16];
 
-	if(isZero(px) && isZero(py)){
+	if(isZero(px) && isZero(py)) {
 		copy(qx, Sx,arrayLength);
 		copy(qy, Sy,arrayLength);
 		return;
@@ -460,8 +460,8 @@ void static ec_add(const uint32_t *px, const uint32_t *py, const uint32_t *qx, c
 		return;
 	}
 
-	if(isSame(px, qx, arrayLength)){
-		if(!isSame(py, qy, arrayLength)){
+	if(isSame(px, qx, arrayLength)) {
+		if(!isSame(py, qy, arrayLength)) {
 			setZero(Sx, 8);
 			setZero(Sy, 8);
 			return;
@@ -474,7 +474,7 @@ void static ec_add(const uint32_t *px, const uint32_t *py, const uint32_t *qx, c
 	fieldSub(py, qy, ecc_prime_m, tempA);
 	fieldSub(px, qx, ecc_prime_m, tempB);
 	fieldInv(tempB, ecc_prime_m, ecc_prime_r, tempB);
-	fieldMult(tempA, tempB, tempD, arrayLength); 
+	fieldMult(tempA, tempB, tempD, arrayLength);
 	fieldModP(tempC, tempD); //tempC = lambda
 
 	fieldMult(tempC, tempC, tempD, arrayLength); //tempA = lambda^2
@@ -498,7 +498,7 @@ void ecc_ec_mult(const uint32_t *px, const uint32_t *py, const uint32_t *secret,
 	uint32_t tempy[8];
 
 	int i;
-	for (i = 256;i--;){
+	for (i = 256; i--; ) {
 		ec_double(Qx, Qy, tempx, tempy);
 		copy(tempx, Qx,arrayLength);
 		copy(tempy, Qy,arrayLength);
@@ -692,7 +692,7 @@ void ecc_rshift(uint32_t* A)
 }
 int ecc_isGreater(const uint32_t *A, const uint32_t *B, uint8_t length)
 {
-	return isGreater(A, B , length);
+	return isGreater(A, B, length);
 }
 
 void ecc_ec_add(const uint32_t *px, const uint32_t *py, const uint32_t *qx, const uint32_t *qy, uint32_t *Sx, uint32_t *Sy)

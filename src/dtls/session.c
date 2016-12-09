@@ -43,6 +43,6 @@ void dtls_session_init(session_t *sess) {
 int dtls_session_equals(const session_t *a, const session_t *b) {
 
 	assert(a);
-    assert(b);
+	assert(b);
 	return a->ifindex == b->ifindex;
 }

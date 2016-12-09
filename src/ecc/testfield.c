@@ -46,56 +46,56 @@
 #endif /* CONTIKI */
 
 //arbitrary test values and results
-uint32_t null[8] = {	0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t null64[16] = {	0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t one[8] = {	0x00000001,0x00000000,0x00000000,0x00000000,
-					0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t one64[16] = {	0x00000001,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t two[8] = {	0x00000002,0x00000000,0x00000000,0x00000000,
-					0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t two64[16] = {	0x00000002,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t three[8] = {	0x00000003,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t null[8] = {    0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t null64[16] = { 0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t one[8] = {     0x00000001,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t one64[16] = {  0x00000001,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t two[8] = {     0x00000002,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t two64[16] = {  0x00000002,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t three[8] = {   0x00000003,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
 uint32_t four[8] = {0x00000004,0x00000000,0x00000000,0x00000000,
-					0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t four64[16] = {	0x00000004,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t six[8] = {	0x00000006,0x00000000,0x00000000,0x00000000,
-					0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t eight[8] = {	0x00000008,0x00000000,0x00000000,0x00000000,
-						0x00000000,0x00000000,0x00000000,0x00000000};
-uint32_t full[8] = { 	0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,
-						0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF};
+	            0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t four64[16] = { 0x00000004,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t six[8] = {     0x00000006,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t eight[8] = {   0x00000008,0x00000000,0x00000000,0x00000000,
+	                0x00000000,0x00000000,0x00000000,0x00000000};
+uint32_t full[8] = {    0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,
+	                0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF};
 //00000000fffffffeffffffffffffffffffffffff000000000000000000000001_16
-uint32_t resultFullAdd[8] = {	0x00000001,0x00000000,0x00000000,0xFFFFFFFF,
-								0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFE,0x00000000};
-uint32_t primeMinusOne[8]=	{	0xfffffffe,0xffffffff,0xffffffff,0x00000000,
-								0x00000000,0x00000000,0x00000001,0xffffffff};
+uint32_t resultFullAdd[8] = {   0x00000001,0x00000000,0x00000000,0xFFFFFFFF,
+	                        0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFE,0x00000000};
+uint32_t primeMinusOne[8]=      {       0xfffffffe,0xffffffff,0xffffffff,0x00000000,
+	                                0x00000000,0x00000000,0x00000001,0xffffffff};
 uint32_t resultDoubleMod[8] = { 0xfffffffd,0xffffffff,0xffffffff,0x00000000,
-								0x00000000,0x00000000,0x00000001,0xffffffff};
+	                        0x00000000,0x00000000,0x00000001,0xffffffff};
 //fffffffe00000002fffffffe0000000100000001fffffffe00000001fffffffc00000003fffffffcfffffffffffffffffffffffc000000000000000000000004_16
-uint32_t resultQuadMod[16] = {	0x00000004,0x00000000,0x00000000,0xFFFFFFFC,
-								0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFC,0x00000003,
-								0xFFFFFFFC,0x00000001,0xFFFFFFFE,0x00000001,
-								0x00000001,0xFFFFFFFE,0x00000002,0xFFFFFFFE};
+uint32_t resultQuadMod[16] = {  0x00000004,0x00000000,0x00000000,0xFFFFFFFC,
+	                        0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFC,0x00000003,
+	                        0xFFFFFFFC,0x00000001,0xFFFFFFFE,0x00000001,
+	                        0x00000001,0xFFFFFFFE,0x00000002,0xFFFFFFFE};
 //00000002fffffffffffffffffffffffefffffffdffffffff0000000000000002_16
-uint32_t resultFullMod[8] = { 	0x00000002,0x00000000,0xFFFFFFFF,0xFFFFFFFD,
-								0xFFFFFFFE,0xFFFFFFFF,0xFFFFFFFF,0x00000002};
+uint32_t resultFullMod[8] = {   0x00000002,0x00000000,0xFFFFFFFF,0xFFFFFFFD,
+	                        0xFFFFFFFE,0xFFFFFFFF,0xFFFFFFFF,0x00000002};
 
 static const uint32_t orderMinusOne[8] = {0xFC632550, 0xF3B9CAC2, 0xA7179E84, 0xBCE6FAAD,
-					0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
+	                                  0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
 static const uint32_t orderResultDoubleMod[8] = {0xFC63254F, 0xF3B9CAC2, 0xA7179E84, 0xBCE6FAAD, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF};
 
 uint32_t temp[8];
@@ -165,8 +165,8 @@ void fieldModPTest(){
 	assert(ecc_isSame(temp, resultDoubleMod, arrayLength));
 	nullEverything();
 	/*fieldMult(full, full, temp2, arrayLength); //not working, maybe because of the number bigger than p^2?
-	fieldModP(temp, temp2);
-	assert(ecc_isSame(temp, resultFullMod, arrayLength));*/
+	   fieldModP(temp, temp2);
+	   assert(ecc_isSame(temp, resultFullMod, arrayLength));*/
 }
 
 void fieldModOTest(){
@@ -185,23 +185,23 @@ void fieldModOTest(){
 
 
 // void rShiftTest(){
-// 	printNumber(full, 32);
-// 	rshift(full);
-// 	printNumber(full, 32);
-// 	printNumber(two, 32);
-// 	rshift(two);
-// 	printNumber(two, 32);
-// 	printNumber(four, 32);
-// 	rshift(four);
-// 	printNumber(four, 32);
+//      printNumber(full, 32);
+//      rshift(full);
+//      printNumber(full, 32);
+//      printNumber(two, 32);
+//      rshift(two);
+//      printNumber(two, 32);
+//      printNumber(four, 32);
+//      rshift(four);
+//      printNumber(four, 32);
 // }
 
 // void isOneTest(){
-// 	printf("%d\n", isone(one));
-// 	printf("%d\n", isone(two));
-// 	printf("%d\n", isone(four));
-// 	printf("%d\n", isone(full));
-// 	printf("%d\n", isone(null));
+//      printf("%d\n", isone(one));
+//      printf("%d\n", isone(two));
+//      printf("%d\n", isone(four));
+//      printf("%d\n", isone(full));
+//      printf("%d\n", isone(null));
 // }
 
 void fieldInvTest(){

@@ -1,7 +1,7 @@
 /*
  * FILE:	sha2speed.c
  * AUTHOR:	Aaron D. Gifford - http://www.aarongifford.com/
- * 
+ *
  * Copyright (c) 2000-2001, Aaron D. Gifford
  * All rights reserved.
  *
@@ -16,7 +16,7 @@
  * 3. Neither the name of the copyright holder nor the names of contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTOR(S) ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -39,7 +39,7 @@
 
 #include "sha2.h"
 
-#define BUFSIZE	16384
+#define BUFSIZE 16384
 
 void usage(char *prog) {
 	fprintf(stderr, "Usage:\t%s [<num-of-bytes>] [<num-of-loops>] [<fill-byte>]\n", prog);
@@ -48,27 +48,27 @@ void usage(char *prog) {
 
 void printspeed(char *caption, unsigned long bytes, double time) {
 	if (bytes / 1073741824UL > 0) {
-                printf("%s %.4f sec (%.3f GBps)\n", caption, time, (double)bytes/1073741824UL/time);
-        } else if (bytes / 1048576 > 0) {
-                printf("%s %.4f (%.3f MBps)\n", caption, time, (double)bytes/1048576/time);
-        } else if (bytes / 1024 > 0) {
-                printf("%s %.4f (%.3f KBps)\n", caption, time, (double)bytes/1024/time);
-        } else {
+		printf("%s %.4f sec (%.3f GBps)\n", caption, time, (double)bytes/1073741824UL/time);
+	} else if (bytes / 1048576 > 0) {
+		printf("%s %.4f (%.3f MBps)\n", caption, time, (double)bytes/1048576/time);
+	} else if (bytes / 1024 > 0) {
+		printf("%s %.4f (%.3f KBps)\n", caption, time, (double)bytes/1024/time);
+	} else {
 		printf("%s %.4f (%f Bps)\n", caption, time, (double)bytes/time);
 	}
 }
 
 
 int main(int argc, char **argv) {
-	SHA256_CTX	c256;
-	SHA384_CTX	c384;
-	SHA512_CTX	c512;
-	char		buf[BUFSIZE];
-	char		md[SHA512_DIGEST_STRING_LENGTH];
-	int		bytes, blocks, rep, i, j;
-	struct timeval	start, end;
-	double		t, ave256, ave384, ave512;
-	double		best256, best384, best512;
+	SHA256_CTX c256;
+	SHA384_CTX c384;
+	SHA512_CTX c512;
+	char buf[BUFSIZE];
+	char md[SHA512_DIGEST_STRING_LENGTH];
+	int bytes, blocks, rep, i, j;
+	struct timeval start, end;
+	double t, ave256, ave384, ave512;
+	double best256, best384, best512;
 
 	if (argc > 4) {
 		usage(argv[0]);
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 		SHA256_Init(&c256);
 		SHA384_Init(&c384);
 		SHA512_Init(&c512);
-	
+
 		gettimeofday(&start, (struct timezone*)0);
 		for (j = 0; j < blocks; j++) {
 			SHA256_Update(&c256, (unsigned char*)buf, BUFSIZE);
