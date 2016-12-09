@@ -26,7 +26,7 @@
 
 #ifdef WITH_CONTIKI
 # ifndef DEBUG
-#  define DEBUG DEBUG_PRINT
+#  define DEBUG 0 //DEBUG_PRINT
 # endif /* DEBUG */
 #include "net/ip/uip-debug.h"
 
@@ -120,3 +120,4 @@ dtls_dsrv_log_addr(log_t level, const char *name, const session_t *addr)
 #define dtls_debug_dump(name, buf, length) dtls_dsrv_hexdump_log(DTLS_LOG_DEBUG, name, buf, length, 0)
 
 #endif /* _DTLS_DEBUG_H_ */
+

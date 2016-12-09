@@ -1,19 +1,19 @@
 /*******************************************************************************
- *
- * Copyright (c) 2011, 2012, 2013, 2014, 2015 Olaf Bergmann (TZI) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
- *
- * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
- * http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *    Olaf Bergmann  - initial API and implementation
- *    Hauke Mehrtens - memory optimization, ECC integration
- *
- *******************************************************************************/
+*
+* Copyright (c) 2011, 2012, 2013, 2014, 2015 Olaf Bergmann (TZI) and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+*
+* The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
+* and the Eclipse Distribution License is available at
+* http://www.eclipse.org/org/documents/edl-v10.php.
+*
+* Contributors:
+*    Olaf Bergmann  - initial API and implementation
+*    Hauke Mehrtens - memory optimization, ECC integration
+*
+*******************************************************************************/
 
 #ifndef _DTLS_NETQ_H_
 #define _DTLS_NETQ_H_
@@ -39,38 +39,39 @@
 #endif
 #endif
 
-/** 
+/**
  * Datagrams in the netq_t structure have a fixed maximum size of
- * DTLS_MAX_BUF to simplify memory management on constrained nodes. */ 
+ * DTLS_MAX_BUF to simplify memory management on constrained nodes. */
 typedef unsigned char netq_packet_t[DTLS_MAX_BUF];
 
 typedef struct netq_t {
-  struct netq_t *next;
+	struct netq_t *next;
 
-  clock_time_t t;	        /**< when to send PDU for the next time */
-  unsigned int timeout;		/**< randomized timeout value */
+	clock_time_t t;         /**< when to send PDU for the next time */
+	unsigned int timeout;   /**< randomized timeout value */
 
-  dtls_peer_t *peer;		/**< remote address */
-  uint16_t epoch;
-  uint8_t type;
-  unsigned char retransmit_cnt;	/**< retransmission counter, will be removed when zero */
+	dtls_peer_t *peer;      /**< remote address */
+	uint16_t epoch;
+	uint8_t type;
+	unsigned char retransmit_cnt; /**< retransmission counter, will be removed when zero */
 
-  size_t length;		/**< actual length of data */
+	size_t length;          /**< actual length of data */
 #ifndef WITH_CONTIKI
-  unsigned char data[];		/**< the datagram to send */
+	unsigned char data[];   /**< the datagram to send */
 #else
-  netq_packet_t data;		/**< the datagram to send */
+	netq_packet_t data;     /**< the datagram to send */
 #endif
 } netq_t;
 
 #ifndef WITH_CONTIKI
 static inline void netq_init()
-{ }
+{
+}
 #else
 void netq_init();
 #endif
 
-/** 
+/**
  * Adds a node to the given queue, ordered by their time-stamp t.
  * This function returns @c 0 on error, or non-zero if @p node has
  * been added successfully.
@@ -93,7 +94,7 @@ netq_t *netq_node_new(size_t size);
 
 /**
  * Returns a pointer to the first item in given queue or NULL if
- * empty. 
+ * empty.
  */
 netq_t *netq_head(netq_t **queue);
 

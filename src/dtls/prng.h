@@ -1,21 +1,21 @@
 /*******************************************************************************
- *
- * Copyright (c) 2011, 2012, 2013, 2014, 2015 Olaf Bergmann (TZI) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
- *
- * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
- * http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *    Olaf Bergmann  - initial API and implementation
- *    Hauke Mehrtens - memory optimization, ECC integration
- *
- *******************************************************************************/
+*
+* Copyright (c) 2011, 2012, 2013, 2014, 2015 Olaf Bergmann (TZI) and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+*
+* The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
+* and the Eclipse Distribution License is available at
+* http://www.eclipse.org/org/documents/edl-v10.php.
+*
+* Contributors:
+*    Olaf Bergmann  - initial API and implementation
+*    Hauke Mehrtens - memory optimization, ECC integration
+*
+*******************************************************************************/
 
-/** 
+/**
  * @file prng.h
  * @brief Pseudo Random Numbers
  */
@@ -25,7 +25,7 @@
 
 #include "tinydtls.h"
 
-/** 
+/**
  * @defgroup prng Pseudo Random Numbers
  * @{
  */
@@ -40,9 +40,9 @@
  */
 static inline int
 dtls_prng(unsigned char *buf, size_t len) {
-  while (len--)
-    *buf++ = rand() & 0xFF;
-  return 1;
+	while (len--)
+		*buf++ = rand() & 0xFF;
+	return 1;
 }
 
 static inline void
@@ -67,24 +67,24 @@ dtls_prng(unsigned char *buf, size_t len)
  */
 static inline int
 dtls_prng(unsigned char *buf, size_t len) {
-  unsigned short v = random_rand();
-  while (len > sizeof(v)) {
-    memcpy(buf, &v, sizeof(v));
-    len -= sizeof(v);
-    buf += sizeof(v);
-    v = random_rand();
-  }
+	unsigned short v = random_rand();
+	while (len > sizeof(v)) {
+		memcpy(buf, &v, sizeof(v));
+		len -= sizeof(v);
+		buf += sizeof(v);
+		v = random_rand();
+	}
 
-  memcpy(buf, &v, len);
-  return 1;
+	memcpy(buf, &v, len);
+	return 1;
 }
 #endif /* HAVE_PRNG */
 
 static inline void
 dtls_prng_init(unsigned short seed) {
-  /* random_init() messes with the radio interface of the CC2538 and
-   * therefore must not be called after the radio has been
-   * initialized. */
+	/* random_init() messes with the radio interface of the CC2538 and
+	 * therefore must not be called after the radio has been
+	 * initialized. */
 #ifndef CONTIKI_TARGET_CC2538DK
 	random_init(seed);
 #endif

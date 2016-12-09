@@ -371,3 +371,4 @@ dtls_dsrv_hexdump_log(log_t level, const char *name, const unsigned char *buf, s
 #endif /* WITH_CONTIKI */
 
 #endif /* NDEBUG */
+

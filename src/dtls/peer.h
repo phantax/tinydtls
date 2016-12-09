@@ -1,19 +1,19 @@
 /*******************************************************************************
- *
- * Copyright (c) 2011, 2012, 2013, 2014, 2015 Olaf Bergmann (TZI) and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
- *
- * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
- * http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *    Olaf Bergmann  - initial API and implementation
- *    Hauke Mehrtens - memory optimization, ECC integration
- *
- *******************************************************************************/
+*
+* Copyright (c) 2011, 2012, 2013, 2014, 2015 Olaf Bergmann (TZI) and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+*
+* The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
+* and the Eclipse Distribution License is available at
+* http://www.eclipse.org/org/documents/edl-v10.php.
+*
+* Contributors:
+*    Olaf Bergmann  - initial API and implementation
+*    Hauke Mehrtens - memory optimization, ECC integration
+*
+*******************************************************************************/
 
 /**
  * @file peer.h
@@ -36,89 +36,77 @@
 #include "uthash.h"
 #endif /* DTLS_PEERS_NOHASH */
 
-#if WITH_CONTIKI
-#include "ctimer.h"
-
-#ifdef DTLS_CONF_CONN_TIMEOUT
-#define DTLS_CONN_TIMEOUT DTLS_CONF_CONN_TIMEOUT
-#else
-#define DTLS_CONN_TIMEOUT 10
-#endif
-
-#endif /* WITH_CONTIKI */
 
 typedef enum { DTLS_CLIENT=0, DTLS_SERVER } dtls_peer_type;
 
-/** 
+/**
  * Holds security parameters, local state and the transport address
  * for each peer. */
 typedef struct dtls_peer_t {
 #ifdef DTLS_PEERS_NOHASH
-  struct dtls_peer_t *next;
+	struct dtls_peer_t *next;
 #else /* DTLS_PEERS_NOHASH */
-  UT_hash_handle hh;
+	UT_hash_handle hh;
 #endif /* DTLS_PEERS_NOHASH */
-#if WITH_CONTIKI && DTLS_CONN_TIMEOUT
-  struct ctimer timeout;
-  struct dtls_context_t *ctx;
-#endif /* WITH_CONTIKI */
 
-  session_t session;	     /**< peer address and local interface */
+    struct dtls_context_t *ctx;
 
-  dtls_peer_type role;       /**< denotes if this host is DTLS_CLIENT or DTLS_SERVER */
-  dtls_state_t state;        /**< DTLS engine state */
+	session_t session;   /**< peer address and local interface */
 
-  dtls_security_parameters_t *security_params[2];
-  dtls_handshake_parameters_t *handshake_params;
+	dtls_peer_type role; /**< denotes if this host is DTLS_CLIENT or DTLS_SERVER */
+	dtls_state_t state;  /**< DTLS engine state */
+
+	dtls_security_parameters_t *security_params[2];
+	dtls_handshake_parameters_t *handshake_params;
 } dtls_peer_t;
 
 static inline dtls_security_parameters_t *dtls_security_params_epoch(dtls_peer_t *peer, uint16_t epoch)
 {
-  if (peer->security_params[0] && peer->security_params[0]->epoch == epoch) {
-    return peer->security_params[0];
-  } else if (peer->security_params[1] && peer->security_params[1]->epoch == epoch) {
-    return peer->security_params[1];
-  } else {
-    return NULL;
-  }
+	if (peer->security_params[0] && peer->security_params[0]->epoch == epoch) {
+		return peer->security_params[0];
+	} else if (peer->security_params[1] && peer->security_params[1]->epoch == epoch) {
+		return peer->security_params[1];
+	} else {
+		return NULL;
+	}
 }
 
 static inline dtls_security_parameters_t *dtls_security_params(dtls_peer_t *peer)
 {
-  return peer->security_params[0];
+	return peer->security_params[0];
 }
 
 static inline dtls_security_parameters_t *dtls_security_params_next(dtls_peer_t *peer)
 {
-  if (peer->security_params[1])
-    dtls_security_free(peer->security_params[1]);
+	if (peer->security_params[1])
+		dtls_security_free(peer->security_params[1]);
 
-  peer->security_params[1] = dtls_security_new();
-  if (!peer->security_params[1]) {
-    return NULL;
-  }
-  peer->security_params[1]->epoch = peer->security_params[0]->epoch + 1;
-  return peer->security_params[1];
+	peer->security_params[1] = dtls_security_new();
+	if (!peer->security_params[1]) {
+		return NULL;
+	}
+	peer->security_params[1]->epoch = peer->security_params[0]->epoch + 1;
+	return peer->security_params[1];
 }
 
 static inline void dtls_security_params_free_other(dtls_peer_t *peer)
 {
-  dtls_security_parameters_t * security0 = peer->security_params[0];
-  dtls_security_parameters_t * security1 = peer->security_params[1];
+	dtls_security_parameters_t * security0 = peer->security_params[0];
+	dtls_security_parameters_t * security1 = peer->security_params[1];
 
-  if (!security0 || !security1 || security0->epoch < security1->epoch)
-    return;
+	if (!security0 || !security1 || security0->epoch < security1->epoch)
+		return;
 
-  dtls_security_free(security1);
-  peer->security_params[1] = NULL;
+	dtls_security_free(security1);
+	peer->security_params[1] = NULL;
 }
 
 static inline void dtls_security_params_switch(dtls_peer_t *peer)
 {
-  dtls_security_parameters_t * security = peer->security_params[1];
+	dtls_security_parameters_t * security = peer->security_params[1];
 
-  peer->security_params[1] = peer->security_params[0];
-  peer->security_params[0] = security;
+	peer->security_params[1] = peer->security_params[0];
+	peer->security_params[0] = security;
 }
 
 void peer_init();
@@ -141,7 +129,7 @@ void dtls_free_peer(dtls_peer_t *peer);
 
 /** Returns the current state of @p peer. */
 static inline dtls_state_t dtls_peer_state(const dtls_peer_t *peer) {
-  return peer->state;
+	return peer->state;
 }
 
 /**
@@ -149,7 +137,7 @@ static inline dtls_state_t dtls_peer_state(const dtls_peer_t *peer) {
  * @c 1 if connected, or @c 0 otherwise.
  */
 static inline int dtls_peer_is_connected(const dtls_peer_t *peer) {
-  return peer->state == DTLS_STATE_CONNECTED;
+	return peer->state == DTLS_STATE_CONNECTED;
 }
 
 /**
