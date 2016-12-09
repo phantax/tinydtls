@@ -4,7 +4,6 @@ core
 *.gz
 *.cap
 *.pcap
-Makefile
 autom4te.cache/
 config.h
 config.log
@@ -30,9 +29,6 @@ ecc/testfield
 *.elf
 *.map
 obj_*
-tinydtls.h
-dtls_config.h
-dtls_config.h.in
 *.apple2enh
 *.atarixl
 *.avr-atmega128rfa1
