@@ -84,12 +84,20 @@ typedef struct {
 	unsigned char identity[DTLS_PSK_MAX_CLIENT_IDENTITY_LEN];
 } dtls_handshake_parameters_psk_t;
 
-typedef struct {
-	dtls_compression_t compression; /**< compression method */
 
-	dtls_cipher_t cipher;   /**< cipher type */
-	uint16_t epoch;      /**< counter for cipher state changes*/
-	uint64_t rseq;       /**< sequence number of last record sent */
+typedef struct {
+
+	/* compression method */
+	dtls_compression_t compression;
+
+	/* cipher type */
+	dtls_cipher_t cipher;
+
+    /* counter for cipher state changes */
+	uint16_t epoch;
+
+    /* sequence number of last record sent */
+	uint64_t rseq;
 
 	/**
 	 * The key block generated from PRF applied to client and server
@@ -98,25 +106,40 @@ typedef struct {
 	 * access the components of the key block.
 	 */
 	uint8 key_block[MAX_KEYBLOCK_LENGTH];
+
 } dtls_security_parameters_t;
+
 
 struct netq_t;
 
 typedef struct {
+
 	union {
+
 		struct random_t {
 			uint8 client[DTLS_RANDOM_LENGTH]; /**< client random gmt and bytes */
 			uint8 server[DTLS_RANDOM_LENGTH]; /**< server random gmt and bytes */
 		} random;
-		/** the session's master secret */
-		uint8 master_secret[DTLS_MASTER_SECRET_LENGTH];
-	} tmp;
-	struct netq_t *reorder_queue; /**< the packets to reorder */
-	dtls_hs_state_t hs_state; /**< handshake protocol status */
 
-	dtls_compression_t compression;         /**< compression method */
-	dtls_cipher_t cipher;   /**< cipher type */
+		/* the session's master secret */
+		uint8 master_secret[DTLS_MASTER_SECRET_LENGTH];
+
+	} tmp;
+
+	/* the packets to reorder */
+	struct netq_t *reorder_queue;
+
+	/* handshake protocol status */
+	dtls_hs_state_t hs_state;
+
+	/* compression method */
+	dtls_compression_t compression;
+
+	/* cipher type */
+	dtls_cipher_t cipher;
+
 	unsigned int do_client_auth : 1;
+
 	union {
 #ifdef DTLS_ECC
 		dtls_handshake_parameters_ecdsa_t ecdsa;
@@ -125,6 +148,7 @@ typedef struct {
 		dtls_handshake_parameters_psk_t psk;
 #endif /* DTLS_PSK */
 	} keyx;
+
 } dtls_handshake_parameters_t;
 
 /* The following macros provide access to the components of the

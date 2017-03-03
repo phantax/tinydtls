@@ -40,7 +40,7 @@
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
-static int maxlog = DTLS_LOG_WARN;      /* default maximum log level */
+static int maxlog = DTLS_LOG_DEBUG;      /* default maximum log level */
 
 const char *dtls_package_name() {
 	return PACKAGE_NAME;
@@ -68,31 +68,6 @@ dtls_set_log_level(log_t level) {
 static char *loglevels[] = {
 	"EMRG", "ALRT", "CRIT", "WARN", "NOTE", "INFO", "DEBG"
 };
-
-#ifdef HAVE_TIME_H
-
-static inline size_t
-print_timestamp(char *s, size_t len, time_t t) {
-	struct tm *tmp;
-	tmp = localtime(&t);
-	return strftime(s, len, "%b %d %H:%M:%S", tmp);
-}
-
-#else /* alternative implementation: just print the timestamp */
-
-static inline size_t
-print_timestamp(char *s, size_t len, clock_time_t t) {
-#ifdef HAVE_SNPRINTF
-	return snprintf(s, len, "%u.%03u",
-	                (unsigned int)(t / CLOCK_SECOND),
-	                (unsigned int)(t % CLOCK_SECOND));
-#else /* HAVE_SNPRINTF */
-	/* @todo do manual conversion of timestamp */
-	return 0;
-#endif /* HAVE_SNPRINTF */
-}
-
-#endif /* HAVE_TIME_H */
 
 #ifndef NDEBUG
 
@@ -203,49 +178,6 @@ dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
 
 #endif /* NDEBUG */
 
-#ifndef WITH_CONTIKI
-void
-dsrv_log(log_t level, char *format, ...) {
-	static char timebuf[32];
-	va_list ap;
-	FILE *log_fd;
-
-	if (maxlog < level)
-		return;
-
-	log_fd = level <= DTLS_LOG_CRIT ? stderr : stdout;
-
-	if (print_timestamp(timebuf,sizeof(timebuf), time(NULL)))
-		fprintf(log_fd, "%s ", timebuf);
-
-	if (level <= DTLS_LOG_DEBUG)
-		fprintf(log_fd, "%s ", loglevels[level]);
-
-	va_start(ap, format);
-	vfprintf(log_fd, format, ap);
-	va_end(ap);
-	fflush(log_fd);
-}
-#elif defined (HAVE_VPRINTF) /* WITH_CONTIKI */
-void
-dsrv_log(log_t level, char *format, ...) {
-	static char timebuf[32];
-	va_list ap;
-
-	if (maxlog < level)
-		return;
-
-	if (print_timestamp(timebuf,sizeof(timebuf), clock_time()))
-		PRINTF("%s ", timebuf);
-
-	if (level <= DTLS_LOG_DEBUG)
-		PRINTF("%s ", loglevels[level]);
-
-	va_start(ap, format);
-	vprintf(format, ap);
-	va_end(ap);
-}
-#endif /* WITH_CONTIKI */
 
 #ifndef NDEBUG
 /** dumps packets in usual hexdump format */
@@ -274,6 +206,10 @@ void dump(unsigned char *buf, size_t len) {
 		printf("%02x", *buf++);
 }
 
+
+/*
+ * ___________________________________________________________________________
+ */
 void dtls_dsrv_log_addr(log_t level, const char *name, const session_t *addr)
 {
 	char addrbuf[73];
@@ -285,25 +221,50 @@ void dtls_dsrv_log_addr(log_t level, const char *name, const session_t *addr)
 	dsrv_log(level, "%s: %s\n", name, addrbuf);
 }
 
-#ifndef WITH_CONTIKI
-void
-dtls_dsrv_hexdump_log(log_t level, const char *name, const unsigned char *buf, size_t length, int extend) {
-	static char timebuf[32];
-	FILE *log_fd;
+
+/*
+ * ___________________________________________________________________________
+ */
+size_t get_hex_string(char* str, size_t maxlen, uint8_t* data, size_t len) {
+
+	/* data index */
+	size_t n = 0;
+
+	/* string index */
+	size_t i = 0;
+
+	/* need at least three bytes left in output buffer */
+	while (n < len && i + 3 <= maxlen) {
+		snprintf(&str[i], 3, "%02X", data[n]);
+		i += 2;
+		++n;
+	}
+
+	return n;
+}
+
+
+/*
+ * ___________________________________________________________________________
+ */
+void dtls_dsrv_hexdump_log(log_t level, const char *name, const unsigned char *buf, size_t length, int extend) {
+
+	static char msgbuf[256];
+
 	int n = 0;
 
 	if (maxlog < level)
 		return;
 
-	log_fd = level <= DTLS_LOG_CRIT ? stderr : stdout;
-
+/*
 	if (print_timestamp(timebuf, sizeof(timebuf), time(NULL)))
 		fprintf(log_fd, "%s ", timebuf);
-
-	if (level <= DTLS_LOG_DEBUG)
-		fprintf(log_fd, "%s ", loglevels[level]);
+*/
+//	if (level <= DTLS_LOG_DEBUG)
+//		fprintf(log_fd, "%s ", loglevels[level]);
 
 	if (extend) {
+		/*
 		fprintf(log_fd, "%s: (%zu bytes):\n", name, length);
 
 		while (length--) {
@@ -320,55 +281,21 @@ dtls_dsrv_hexdump_log(log_t level, const char *name, const unsigned char *buf, s
 					fprintf(log_fd, " ");
 			}
 		}
+		*/
 	} else {
-		fprintf(log_fd, "%s: (%zu bytes): ", name, length);
-		while (length--)
-			fprintf(log_fd, "%02X", *buf++);
-	}
-	fprintf(log_fd, "\n");
 
-	fflush(log_fd);
-}
-#else /* WITH_CONTIKI */
-void
-dtls_dsrv_hexdump_log(log_t level, const char *name, const unsigned char *buf, size_t length, int extend) {
-	static char timebuf[32];
-	int n = 0;
+		int len = snprintf(msgbuf, sizeof(msgbuf), "%s (%u bytes): ", name, length);
 
-	if (maxlog < level)
-		return;
+		if (len > 0) {
 
-	if (print_timestamp(timebuf,sizeof(timebuf), clock_time()))
-		PRINTF("%s ", timebuf);
+			len += 2 * get_hex_string(&msgbuf[len], sizeof(msgbuf) - len, buf, length);
 
-	if (level >= 0 && level <= DTLS_LOG_DEBUG)
-		PRINTF("%s ", loglevels[level]);
-
-	if (extend) {
-		PRINTF("%s: (%zu bytes):\n", name, length);
-
-		while (length--) {
-			if (n % 16 == 0)
-				PRINTF("%08X ", n);
-
-			PRINTF("%02X ", *buf++);
-
-			n++;
-			if (n % 8 == 0) {
-				if (n % 16 == 0)
-					PRINTF("\n");
-				else
-					PRINTF(" ");
-			}
+			msgbuf[len] = '\n';
+			msgbuf[len + 1] = 0;
+			dsrv_log(level, msgbuf);
 		}
-	} else {
-		PRINTF("%s: (%zu bytes): ", name, length);
-		while (length--)
-			PRINTF("%02X", *buf++);
 	}
-	PRINTF("\n");
 }
-#endif /* WITH_CONTIKI */
 
 #endif /* NDEBUG */
 

@@ -56,59 +56,85 @@ static void dtls_cipher_context_release(void)
 	 */
 }
 
-#ifndef WITH_CONTIKI
-void dtls_crypto_init()
-{
-}
 
-static dtls_handshake_parameters_t *dtls_handshake_malloc() {
-	return malloc(sizeof(dtls_handshake_parameters_t));
-}
-
-static void dtls_handshake_dealloc(dtls_handshake_parameters_t *handshake) {
-	free(handshake);
-}
-
-static dtls_security_parameters_t *dtls_security_malloc() {
-	return malloc(sizeof(dtls_security_parameters_t));
-}
-
-static void dtls_security_dealloc(dtls_security_parameters_t *security) {
-	free(security);
-}
-#else /* WITH_CONTIKI */
-
-#include "memb.h"
-MEMB(handshake_storage, dtls_handshake_parameters_t, DTLS_HANDSHAKE_MAX);
-MEMB(security_storage, dtls_security_parameters_t, DTLS_SECURITY_MAX);
-
+/*
+ * ___________________________________________________________________________
+ */
 void dtls_crypto_init() {
-	memb_init(&handshake_storage);
-	memb_init(&security_storage);
+
 }
 
-static dtls_handshake_parameters_t *dtls_handshake_malloc() {
-	return memb_alloc(&handshake_storage);
-}
 
-static void dtls_handshake_dealloc(dtls_handshake_parameters_t *handshake) {
-	memb_free(&handshake_storage, handshake);
-}
+static dtls_handshake_parameters_t dtls_handshake_parameters;
 
-static dtls_security_parameters_t *dtls_security_malloc() {
-	return memb_alloc(&security_storage);
-}
-
-static void dtls_security_dealloc(dtls_security_parameters_t *security) {
-	memb_free(&security_storage, security);
-}
-#endif /* WITH_CONTIKI */
+static dtls_handshake_parameters_t* p_dtls_handshake_parameters;
 
 
 /*
  * ___________________________________________________________________________
  */
-dtls_handshake_parameters_t *dtls_handshake_new() {
+static dtls_handshake_parameters_t *dtls_handshake_malloc() {
+
+	dtls_handshake_parameters_t* p = 0;
+	if (p_dtls_handshake_parameters == 0) {
+		p_dtls_handshake_parameters = &dtls_handshake_parameters;
+		p = p_dtls_handshake_parameters;
+	}
+	return p;
+}
+
+
+/*
+ * ___________________________________________________________________________
+ */
+static void dtls_handshake_dealloc(dtls_handshake_parameters_t *handshake) {
+
+	p_dtls_handshake_parameters = 0;
+}
+
+
+static dtls_security_parameters_t dtls_security_parameters_1;
+static dtls_security_parameters_t dtls_security_parameters_2;
+
+static dtls_security_parameters_t* p_dtls_security_parameters_1;
+static dtls_security_parameters_t* p_dtls_security_parameters_2;
+
+
+/*
+ * ___________________________________________________________________________
+ */
+static dtls_security_parameters_t* dtls_security_malloc() {
+
+	dtls_security_parameters_t* p = 0;
+	if (p_dtls_security_parameters_1 == 0) {
+		p_dtls_security_parameters_1 = &dtls_security_parameters_1;
+		p = p_dtls_security_parameters_1;
+	} else if (p_dtls_security_parameters_2 == 0) {
+		p_dtls_security_parameters_2 = &dtls_security_parameters_2;
+		p = p_dtls_security_parameters_2;
+	}
+	return p;
+}
+
+
+/*
+ * ___________________________________________________________________________
+ */
+static void dtls_security_dealloc(dtls_security_parameters_t *security) {
+
+	if (security == &dtls_security_parameters_1) {
+		p_dtls_security_parameters_1 = 0;
+	} else if (security == &dtls_security_parameters_2) {
+		p_dtls_security_parameters_2 = 0;
+	}
+}
+
+
+/*
+ * ___________________________________________________________________________
+ */
+dtls_handshake_parameters_t* dtls_handshake_new() {
+
 	dtls_handshake_parameters_t *handshake;
 
 	handshake = dtls_handshake_malloc();
@@ -130,17 +156,26 @@ dtls_handshake_parameters_t *dtls_handshake_new() {
 	return handshake;
 }
 
-void dtls_handshake_free(dtls_handshake_parameters_t *handshake)
-{
-	if (!handshake)
+
+/*
+ * ___________________________________________________________________________
+ */
+void dtls_handshake_free(dtls_handshake_parameters_t *handshake) {
+
+	if (!handshake) {
 		return;
+	}
 
 	netq_delete_all(&handshake->reorder_queue);
 	dtls_handshake_dealloc(handshake);
 }
 
-dtls_security_parameters_t *dtls_security_new()
-{
+
+/*
+ * ___________________________________________________________________________
+ */
+dtls_security_parameters_t* dtls_security_new() {
+
 	dtls_security_parameters_t *security;
 
 	security = dtls_security_malloc();
@@ -158,21 +193,30 @@ dtls_security_parameters_t *dtls_security_new()
 	return security;
 }
 
-void dtls_security_free(dtls_security_parameters_t *security)
-{
-	if (!security)
+
+/*
+ * ___________________________________________________________________________
+ */
+void dtls_security_free(dtls_security_parameters_t *security) {
+
+	if (!security) {
 		return;
+	}
 
 	dtls_security_dealloc(security);
 }
 
-size_t
-dtls_p_hash(dtls_hashfunc_t h,
+
+/*
+ * ___________________________________________________________________________
+ */
+size_t dtls_p_hash(dtls_hashfunc_t h,
             const unsigned char *key, size_t keylen,
             const unsigned char *label, size_t labellen,
             const unsigned char *random1, size_t random1len,
             const unsigned char *random2, size_t random2len,
             unsigned char *buf, size_t buflen) {
+
 	dtls_hmac_context_t *hmac_a, *hmac_p;
 
 	unsigned char A[DTLS_HMAC_DIGEST_SIZE];

@@ -28,8 +28,14 @@ static inline void check_stack() {
 }
 
 /** Pre-defined log levels akin to what is used in \b syslog. */
-typedef enum { DTLS_LOG_EMERG=0, DTLS_LOG_ALERT, DTLS_LOG_CRIT, DTLS_LOG_WARN, 
-       DTLS_LOG_NOTICE, DTLS_LOG_INFO, DTLS_LOG_DEBUG
+typedef enum {
+	DTLS_LOG_EMERG = 0,
+	DTLS_LOG_ALERT,
+	DTLS_LOG_CRIT,
+	DTLS_LOG_WARN,
+    DTLS_LOG_NOTICE,
+	DTLS_LOG_INFO,
+	DTLS_LOG_DEBUG
 } log_t;
 
 /** Returns a zero-terminated string with the name of this library. */
@@ -50,11 +56,7 @@ void dtls_set_log_level(log_t level);
  * set_log_level(). */
 
 
-#ifdef HAVE_VPRINTF
-void dsrv_log(log_t level, char *format, ...);
-#else
-#define dsrv_log(level, format, ...) PRINTF(format, ##__VA_ARGS__)
-#endif
+extern void dsrv_log(log_t level, char *format, ...);
 
 #ifndef NDEBUG
 /** dumps packets in usual hexdump format */

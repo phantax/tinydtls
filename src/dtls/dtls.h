@@ -211,21 +211,24 @@ struct netq_t;
 
 /** Holds global information of the DTLS engine. */
 typedef struct dtls_context_t {
+
 	unsigned char cookie_secret[DTLS_COOKIE_SECRET_LENGTH];
-	clock_time_t cookie_secret_age; /**< the time the secret has been generated */
+
+	 /* the time the secret has been generated */
+	clock_time_t cookie_secret_age;
 
 	dtls_peer_t *peers;     /**< peer hash map */
-#ifdef WITH_CONTIKI
-	struct etimer retransmit_timer; /**< fires when the next packet must be sent */
-#endif /* WITH_CONTIKI */
+
 
 	struct netq_t *sendqueue; /**< the packets to send */
 
 	void *app;              /**< application-specific data */
 
-	dtls_handler_t *h;      /**< callback handlers */
+	/* callback handlers */
+	dtls_handler_t* h;
 
 	unsigned char readbuf[DTLS_MAX_BUF];
+
 } dtls_context_t;
 
 /**
@@ -234,10 +237,9 @@ typedef struct dtls_context_t {
  */
 void dtls_init();
 
-/**
- * Creates a new context object. The storage allocated for the new
- * object must be released with dtls_free_context(). */
-dtls_context_t *dtls_new_context(void *app_data);
+
+void dtls_init_context(dtls_context_t* context);
+
 
 /** Releases any storage that has been allocated for \p ctx. */
 void dtls_free_context(dtls_context_t *ctx);
@@ -409,6 +411,9 @@ dtls_peer_t *dtls_get_peer(const dtls_context_t *context,
  * @param peer     The peer to reset.
  */
 void dtls_reset_peer(dtls_context_t *context, dtls_peer_t *peer);
+
+
+void dtls_retransmit_process(dtls_context_t* context);
 
 #endif /* _DTLS_DTLS_H_ */
 

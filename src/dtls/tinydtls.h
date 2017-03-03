@@ -24,12 +24,12 @@
 #define _DTLS_TINYDTLS_H_
 
 /** Defined to 1 if tinydtls is built with support for ECC */
-#undef DTLS_ECC
+//#undef DTLS_ECC
 
 /** Defined to 1 if tinydtls is built with support for PSK */
-#undef DTLS_PSK
+//#undef DTLS_PSK
 
 /** Defined to 1 if tinydtls is built for Contiki OS */
-#undef WITH_CONTIKI
+//#undef WITH_CONTIKI
 
 #endif /* _DTLS_TINYDTLS_H_ */

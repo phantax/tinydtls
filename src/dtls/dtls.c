@@ -150,23 +150,17 @@ static const unsigned char cert_asn1_header[] = {
 	0x04  /* uncompressed, followed by the r und s values of the public key */
 };
 
-static inline dtls_context_t *
-malloc_context() {
-	return (dtls_context_t *)malloc(sizeof(dtls_context_t));
-}
 
-static inline void
-free_context(dtls_context_t *context) {
-	free(context);
-}
+/*
+ *	__________________________________________________________________________
+ */
+void dtls_init() {
 
-void
-dtls_init() {
-	dtls_clock_init();
 	dtls_crypto_init();
 	netq_init();
 	peer_init();
 }
+
 
 /* Calls cb_alert() with given arguments if defined, otherwise an
  * error message is logged and the result is -1. This is just an
@@ -177,11 +171,15 @@ dtls_init() {
 	 ? (Context)->h->which((Context), ## __VA_ARGS__)                      \
 	 : -1)
 
-static int
-dtls_send_multi(dtls_context_t *ctx, dtls_peer_t *peer,
+
+/*
+ *	__________________________________________________________________________
+ */
+static int dtls_send_multi(dtls_context_t *ctx, dtls_peer_t *peer,
                 dtls_security_parameters_t *security, session_t *session,
                 unsigned char type, uint8 *buf_array[],
                 size_t buf_len_array[], size_t buf_array_len);
+
 
 /**
  * Sends the fragment of length \p buflen given in \p buf to the
@@ -1467,9 +1465,9 @@ dtls_send_multi(dtls_context_t *ctx, dtls_peer_t *peer,
 		if (n) {
 			dtls_tick_t now;
 			dtls_ticks(&now);
-			n->t = now + 2 * CLOCK_SECOND;
+			n->t = now + 5 * CLOCK_SECOND;	// was: 2 seconds, now 5
 			n->retransmit_cnt = 0;
-			n->timeout = 2 * CLOCK_SECOND;
+			n->timeout = 5 * CLOCK_SECOND;
 			n->peer = peer;
 			n->epoch = (security) ? security->epoch : 0;
 			n->type = type;
@@ -2480,11 +2478,15 @@ dtls_send_client_hello(dtls_context_t *ctx, dtls_peer_t *peer,
 	                                    buf, p - buf, cookie_length != 0);
 }
 
-static int
-check_server_hello(dtls_context_t *ctx,
-                   dtls_peer_t *peer,
-                   uint8 *data, size_t data_length)
-{
+
+/*
+ *	__________________________________________________________________________
+ */
+static int check_server_hello(
+		dtls_context_t *ctx,
+        dtls_peer_t *peer,
+        uint8 *data, size_t data_length) {
+
 	dtls_handshake_parameters_t *handshake = peer->handshake_params;
 
 	/* This function is called when we expect a ServerHello (i.e. we
@@ -3774,71 +3776,31 @@ dtls_handle_message(dtls_context_t *ctx,
 	return 0;
 }
 
-dtls_context_t *
-dtls_new_context(void *app_data) {
-	dtls_context_t *c;
-	dtls_tick_t now;
-#ifndef WITH_CONTIKI
-	FILE *urandom = fopen("/dev/urandom", "r");
-	unsigned char buf[sizeof(unsigned long)];
-#endif /* WITH_CONTIKI */
 
-	dtls_ticks(&now);
-#ifdef WITH_CONTIKI
-	/* FIXME: need something better to init PRNG here */
-	dtls_prng_init(now);
-#else /* WITH_CONTIKI */
-	if (!urandom) {
-		dtls_emerg("cannot initialize PRNG\n");
-		return NULL;
-	}
+/*
+ *	__________________________________________________________________________
+ */
+void dtls_init_context(dtls_context_t* context) {
 
-	if (fread(buf, 1, sizeof(buf), urandom) != sizeof(buf)) {
-		dtls_emerg("cannot initialize PRNG\n");
-		return NULL;
-	}
-
-	fclose(urandom);
-	dtls_prng_init((unsigned long)*buf);
-#endif /* WITH_CONTIKI */
-
-	c = malloc_context();
-	if (!c)
-		goto error;
-
-	memset(c, 0, sizeof(dtls_context_t));
-	c->app = app_data;
-
-#ifdef WITH_CONTIKI
-	process_start(&dtls_retransmit_process, (char *)c);
-	PROCESS_CONTEXT_BEGIN(&dtls_retransmit_process);
-	/* the retransmit timer must be initialized to some large value */
-	etimer_set(&c->retransmit_timer, 0xFFFF);
-	PROCESS_CONTEXT_END(&coap_retransmit_process);
-#endif /* WITH_CONTIKI */
-
-	if (dtls_prng(c->cookie_secret, DTLS_COOKIE_SECRET_LENGTH))
-		c->cookie_secret_age = now;
-	else
-		goto error;
-
-	return c;
-
-error:
-	dtls_alert("cannot create DTLS context\n");
-	if (c)
-		dtls_free_context(c);
-	return NULL;
+	memset(context, 0, sizeof(dtls_context_t));
 }
 
+
+/*
+ *	__________________________________________________________________________
+ */
 void dtls_reset_peer(dtls_context_t *ctx, dtls_peer_t *peer)
 {
 	dtls_stop_retransmission(ctx, peer);
 	dtls_destroy_peer(ctx, peer, 1);
 }
 
-void
-dtls_free_context(dtls_context_t *ctx) {
+
+/*
+ *	__________________________________________________________________________
+ */
+void dtls_free_context(dtls_context_t *ctx) {
+
 	dtls_peer_t *p, *tmp;
 
 	if (!ctx) {
@@ -3858,8 +3820,12 @@ dtls_free_context(dtls_context_t *ctx) {
 	free_context(ctx);
 }
 
-int
-dtls_connect_peer(dtls_context_t *ctx, dtls_peer_t *peer) {
+
+/*
+ *	__________________________________________________________________________
+ */
+int dtls_connect_peer(dtls_context_t *ctx, dtls_peer_t *peer) {
+
 	int res;
 
 	assert(peer);
@@ -3896,15 +3862,20 @@ dtls_connect_peer(dtls_context_t *ctx, dtls_peer_t *peer) {
 	return res;
 }
 
-int
-dtls_connect(dtls_context_t *ctx, const session_t *dst) {
+
+/*
+ * ___________________________________________________________________________
+ */
+int dtls_connect(dtls_context_t *ctx, const session_t *dst) {
+
 	dtls_peer_t *peer;
 	int res;
 
 	peer = dtls_get_peer(ctx, dst);
 
-	if (!peer)
+	if (!peer) {
 		peer = dtls_new_peer(ctx, dst);
+	}
 
 	if (!peer) {
 		dtls_crit("cannot create new peer\n");
@@ -3924,8 +3895,12 @@ dtls_connect(dtls_context_t *ctx, const session_t *dst) {
 	return res;
 }
 
-static void
-dtls_retransmit(dtls_context_t *context, netq_t *node) {
+
+/*
+ * ___________________________________________________________________________
+ */
+static void dtls_retransmit(dtls_context_t *context, netq_t *node) {
+
 	if (!context || !node)
 		return;
 
@@ -3941,7 +3916,8 @@ dtls_retransmit(dtls_context_t *context, netq_t *node) {
 
 		dtls_ticks(&now);
 		node->retransmit_cnt++;
-		node->t = now + (node->timeout << node->retransmit_cnt);
+//		node->t = now + (node->timeout << node->retransmit_cnt);
+		node->t = now + (node->timeout * (node->retransmit_cnt + 1));
 		netq_insert_node(&context->sendqueue, node);
 
 		if (node->type == DTLS_CT_HANDSHAKE) {
@@ -3975,8 +3951,13 @@ dtls_retransmit(dtls_context_t *context, netq_t *node) {
 	netq_node_free(node);
 }
 
-static void
-dtls_stop_retransmission(dtls_context_t *context, dtls_peer_t *peer) {
+
+/*
+ * ___________________________________________________________________________
+ */
+static void dtls_stop_retransmission(
+		dtls_context_t *context, dtls_peer_t *peer) {
+
 	netq_t *node;
 	node = netq_head(&context->sendqueue);
 
@@ -3991,8 +3972,12 @@ dtls_stop_retransmission(dtls_context_t *context, dtls_peer_t *peer) {
 	}
 }
 
-void
-dtls_check_retransmit(dtls_context_t *context, clock_time_t *next) {
+
+/*
+ * ___________________________________________________________________________
+ */
+void dtls_check_retransmit(dtls_context_t *context, clock_time_t *next) {
+
 	dtls_tick_t now;
 	netq_t *node = netq_head(&context->sendqueue);
 
@@ -4007,46 +3992,3 @@ dtls_check_retransmit(dtls_context_t *context, clock_time_t *next) {
 		*next = node ? node->t : 0;
 	}
 }
-
-#ifdef WITH_CONTIKI
-/*---------------------------------------------------------------------------*/
-/* message retransmission */
-/*---------------------------------------------------------------------------*/
-PROCESS_THREAD(dtls_retransmit_process, ev, data)
-{
-	clock_time_t now;
-	netq_t *node;
-
-	PROCESS_BEGIN();
-
-	dtls_debug("Started DTLS retransmit process\r\n");
-
-	while(1) {
-		PROCESS_YIELD();
-		if (ev == PROCESS_EVENT_TIMER) {
-			if (etimer_expired(&the_dtls_context.retransmit_timer)) {
-
-				node = netq_head(&the_dtls_context.sendqueue);
-
-				now = clock_time();
-				if (node && node->t <= now) {
-					dtls_retransmit(&the_dtls_context, node);
-
-					netq_node_free(node);
-					node = netq_head(&the_dtls_context.sendqueue);
-				}
-
-				/* need to set timer to some value even if no nextpdu is available */
-				if (node) {
-					etimer_set(&the_dtls_context.retransmit_timer,
-					           node->t <= now ? 1 : node->t - now);
-				} else {
-					etimer_set(&the_dtls_context.retransmit_timer, 0xFFFF);
-				}
-			}
-		}
-	}
-
-	PROCESS_END();
-}
-#endif /* WITH_CONTIKI */
