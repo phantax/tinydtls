@@ -110,9 +110,7 @@ OBJ_BASE_DIR  = $(BUILD_DIR)/obj
 PREP_BASE_DIR = $(BUILD_DIR)/prep
 ASM_BASE_DIR  = $(BUILD_DIR)/asm
 
-EXECUTABLE    = $(BUILD_DIR)/$(PROJ_NAME).elf
 LIBRARY       = $(BUILD_DIR)/lib$(PROJ_NAME).a
-BINARY        = $(BUILD_DIR)/$(PROJ_NAME).bin
 
 SOURCES       = $(foreach d, $(SRC_FILES), $(shell ls -1 $d))
 OBJECTS       = $(addprefix $(OBJ_BASE_DIR)/, $(addsuffix .o, $(SOURCES)))
@@ -120,13 +118,9 @@ PREPS         = $(addprefix $(PREP_BASE_DIR)/, $(SOURCES))
 ASMS          = $(patsubst $(OBJ_BASE_DIR)/%, $(ASM_BASE_DIR)/%.s, $(OBJECTS))
 
 
-all: bin size
-
-exec: $(EXECUTABLE) 
+all: lib
 
 lib: $(LIBRARY)  
-
-bin: $(BINARY) 
 
 prep: $(PREPS) 
 
@@ -136,22 +130,11 @@ asm: $(ASMS)
 
 
 
-$(EXECUTABLE): obj
-	@echo "\033[01;33m==> Linking files -> '$@':\033[00;00m"
-	@mkdir -p $(dir $@)
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
-	@echo ""
-
 $(LIBRARY)  : $(OBJECTS)
 	@echo "\033[01;33m==> Creating static library '$@':\033[00;00m"
 	@mkdir -p $(BUILD_DIR)
 	ar rcs $(LIBRARY) $(OBJECTS)
 	@echo ""
-
-$(BINARY): $(EXECUTABLE)
-	@echo "\033[01;33m==> Creating binary '$(EXECUTABLE)' -> '$@':\033[00;00m"
-	@mkdir -p $(dir $@)
-	$(OBJCOPY) -O binary $(EXECUTABLE) $@
 	
 list: $(EXECUTABLE)
 	@echo "\033[01;33m==> Creating listing for '$(EXECUTABLE)' :\033[00;00m"
